@@ -170,7 +170,7 @@ const PrintPreviewScreen = () => {
               <span>{tagihan.stanAwal}</span>
               <span>&gt;</span>
               <span>{tagihan.stanAkhir}</span>
-              <span>= {tagihan.lebih} m³</span>
+              <span>= {tagihan.jumlahPakai} m³</span>
 
               <span>31 &gt;</span>
               <span>3.000</span>
