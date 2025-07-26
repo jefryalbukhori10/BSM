@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, Link } from "react-router-dom";
 import {
   FaHome,
   FaFileAlt,
@@ -26,10 +26,10 @@ export default function MainLayout() {
     <div className="min-h-screen pt-16 pb-14 bg-gray-100">
       {/* Header - fixed di atas */}
       <header className="fixed top-0 left-0 right-0 z-10 bg-blue-800 text-white p-4 font-bold text-lg shadow flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
-          <span>Bathoro Suryo Makmur</span>
-        </div>
+          <span className="font-bold text-white">Bathoro Suryo Makmur</span>
+        </Link>
         <button onClick={toggleFullscreen} className="text-white text-xl">
           {isFullscreen ? <FaCompress /> : <FaExpand />}
         </button>

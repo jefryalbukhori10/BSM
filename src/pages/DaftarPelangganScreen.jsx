@@ -132,7 +132,7 @@ export default function DaftarPelanggan() {
 
       <div className="w-full bg-white p-4 rounded-xl shadow flex flex-col md:flex-row justify-between items-stretch md:items-center gap-2 mb-4">
         <Link
-          to="/tambah-pelanggan"
+          to="/app/tambah-pelanggan"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <FontAwesomeIcon icon={faPlus} />
