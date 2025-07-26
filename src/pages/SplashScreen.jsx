@@ -32,7 +32,7 @@ const SplashScreen = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        BARHORO SURYO MAKMUR
+        BATHORO SURYO MAKMUR
       </motion.h1>
 
       {/* Versi */}
