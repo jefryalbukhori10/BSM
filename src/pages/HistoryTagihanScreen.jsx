@@ -11,7 +11,7 @@ const HistoryTagihanScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const cardsPerPage = window.innerWidth > 400 ? 4 : 2;
+  const cardsPerPage = 5;
 
   const fetchTagihan = async () => {
     try {

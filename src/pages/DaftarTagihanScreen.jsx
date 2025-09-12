@@ -15,6 +15,9 @@ const DaftarTagihanScreen = () => {
   const [tagihanData, setTagihanData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const cardsPerPage = 5;
 
   const fetchTagihan = async () => {
     try {
@@ -58,7 +61,14 @@ const DaftarTagihanScreen = () => {
       item.pelanggan.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredData(filtered);
+    setCurrentPage(1);
   }, [searchQuery, tagihanData]);
+
+  const totalPages = Math.ceil(filteredData.length / cardsPerPage);
+  const currentData = filteredData.slice(
+    (currentPage - 1) * cardsPerPage,
+    currentPage * cardsPerPage
+  );
 
   const handleSetLunas = async (id) => {
     const result = await Swal.fire({
@@ -116,7 +126,7 @@ const DaftarTagihanScreen = () => {
         onChange={(e) => setSearchQuery(e.target.value)}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredData.map((item) => (
+        {currentData.map((item) => (
           <div
             key={item.id}
             className="bg-white p-4 rounded shadow-md flex flex-col justify-between"
@@ -155,6 +165,38 @@ const DaftarTagihanScreen = () => {
           </div>
         ))}
       </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded ${
+              currentPage === 1
+                ? "bg-gray-300"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            ‹
+          </button>
+          <span className="text-gray-700">
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded ${
+              currentPage === totalPages
+                ? "bg-gray-300"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            ›
+          </button>
+        </div>
+      )}
     </div>
   );
 };
