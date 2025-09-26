@@ -147,21 +147,21 @@ export default function DaftarTagihanBulanLalu() {
             onClick={() =>
               navigate(`/app/print-preview-bulan-lalu?id=${row.id}`)
             }
-            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded cursor-pointer m-1"
             title="Lihat Detail"
           >
             <FontAwesomeIcon icon={faEye} />
           </button>
           <button
             onClick={() => handleEdit(row)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded cursor-pointer"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded cursor-pointer m-1"
             title="Edit"
           >
             <FontAwesomeIcon icon={faEdit} />
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded cursor-pointer"
+            className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded cursor-pointer m-1"
             title="Hapus"
           >
             <FontAwesomeIcon icon={faTrash} />
