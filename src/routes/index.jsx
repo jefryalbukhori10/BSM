@@ -10,6 +10,9 @@ import HistoryTagihanScreen from "../pages/HistoryTagihanScreen";
 import DaftarPelangganScreen from "../pages/DaftarPelangganScreen";
 import TambahPelangganScreen from "../pages/TambahPelangganScreen";
 import PrintPreviewScreen from "../pages/PrintPreviewScreen";
+import BuatTagihanBulanLalu from "../pages/BuatTagihanBulanLalu";
+import PrintPreviewTagihanBulahLalu from "../pages/PrintPreviewTagihanBulahLalu";
+import DaftarTagihanBulanLalu from "../pages/DaftarTagihanBulanLalu";
 
 // export const router = createBrowserRouter([
 //   {
@@ -44,6 +47,15 @@ export const router = createBrowserRouter([
       { path: "daftar-pelanggan", element: <DaftarPelangganScreen /> },
       { path: "tambah-pelanggan", element: <TambahPelangganScreen /> },
       { path: "print-preview", element: <PrintPreviewScreen /> },
+      { path: "buat-tagihan-bulan-lalu", element: <BuatTagihanBulanLalu /> },
+      {
+        path: "print-preview-bulan-lalu",
+        element: <PrintPreviewTagihanBulahLalu />,
+      },
+      {
+        path: "daftar-tagihan-bulan-lalu",
+        element: <DaftarTagihanBulanLalu />,
+      },
     ],
   },
 ]);

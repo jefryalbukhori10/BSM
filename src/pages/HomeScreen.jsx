@@ -6,6 +6,9 @@ import {
   FaUsers,
   FaUserPlus,
   FaMoneyBillWave,
+  FaUndoAlt,
+  FaRegCalendarCheck,
+  FaCalendarTimes,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
@@ -103,6 +106,16 @@ export default function Home() {
           icon={<FaUserPlus size={30} />}
           label="Tambah Pelanggan"
           to="/app/tambah-pelanggan"
+        />
+        <MenuCard
+          icon={<FaRegCalendarCheck size={30} />}
+          label="Buat Tagihan Bulan Lalu"
+          to="/app/buat-tagihan-bulan-lalu"
+        />
+        <MenuCard
+          icon={<FaCalendarTimes size={30} />}
+          label="Daftar Tagihan Bulan Lalu"
+          to="/app/daftar-tagihan-bulan-lalu"
         />
       </div>
 
