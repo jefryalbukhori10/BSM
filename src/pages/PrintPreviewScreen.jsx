@@ -86,38 +86,105 @@ const PrintPreviewScreen = () => {
   };
 
   // 🖨️ PRINT
+  // const handlePrint = async () => {
+  //   // const printWindow = window.open("", "_blank");
+  //   // printWindow.document.write(`
+  //   //   <html>
+  //   //     <head>
+  //   //       <title>Cetak Tagihan</title>
+  //   //       <style>
+  //   //         body { font-family: sans-serif; padding: 20px; }
+  //   //       </style>
+  //   //     </head>
+  //   //     <body>
+  //   //       ${previewRef.current.innerHTML}
+  //   //       <script>
+  //   //         window.onload = function() {
+  //   //           window.print();
+  //   //           window.onafterprint = function() { window.close(); };
+  //   //         }
+  //   //       </script>
+  //   //     </body>
+  //   //   </html>
+  //   // `);
+  //   // printWindow.document.close();
+
+  //   const element = previewRef.current;
+  //   const canvas = await html2canvas(element);
+  //   const dataUrl = canvas.toDataURL("image/jpeg");
+
+  //   const win = window.open("");
+  //   win.document
+  //     .write(`<html><head><title>Print</title></head><body style="margin:0;">
+  //     <img src="${dataUrl}" onload="window.print(); window.close();" style="width:100%;"/>
+  //   </body></html>`);
+  // };
+
+  // 🖨️ PRINT KE PRINTER BLUETOOTH
   const handlePrint = async () => {
-    // const printWindow = window.open("", "_blank");
-    // printWindow.document.write(`
-    //   <html>
-    //     <head>
-    //       <title>Cetak Tagihan</title>
-    //       <style>
-    //         body { font-family: sans-serif; padding: 20px; }
-    //       </style>
-    //     </head>
-    //     <body>
-    //       ${previewRef.current.innerHTML}
-    //       <script>
-    //         window.onload = function() {
-    //           window.print();
-    //           window.onafterprint = function() { window.close(); };
-    //         }
-    //       </script>
-    //     </body>
-    //   </html>
-    // `);
-    // printWindow.document.close();
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: "RPP" }], // cari printer RPP02N
+        optionalServices: [0xffe0],
+      });
 
-    const element = previewRef.current;
-    const canvas = await html2canvas(element);
-    const dataUrl = canvas.toDataURL("image/jpeg");
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(0xffe0);
+      const characteristic = await service.getCharacteristic(0xffe1);
 
-    const win = window.open("");
-    win.document
-      .write(`<html><head><title>Print</title></head><body style="margin:0;">
-      <img src="${dataUrl}" onload="window.print(); window.close();" style="width:100%;"/>
-    </body></html>`);
+      // 📝 Susun teks ESC/POS sesuai dengan struk di layar
+      let text = "";
+      text += "KPSPAMS BATHORO SURYO MAKMUR\n";
+      text += "Dusun Sukoyuwono Desa Palaan\n";
+      text += "Kec. Ngajum Kab. Malang\n";
+      text += "========================================\n";
+      text += `Nama   : ${pelanggan.nama || "-"}\n`;
+      text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+      text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+      text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+      text += "========================================\n";
+
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
+
+      // Hitungan blok tarif
+      if (tagihan.jumlahPakai > 30) {
+        text += `31 >   3000 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+      if (tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31) {
+        text += `21-30  2000 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21) {
+        text += `11-20  1500 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+
+      text += `MINIMAL 10 m³ = Rp15.000\n`;
+      text += `BEBAN        = Rp5.000\n`;
+      text += "========================================\n";
+
+      text += `TOTAL TAGIHAN : Rp${Number(tagihan.jumlahTagihan).toLocaleString(
+        "id-ID"
+      )}\n\n`;
+
+      text +=
+        "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
+      text += `Dicetak pada ${tanggalCetak}\n\n\n\n`;
+
+      // Konversi ke byte dan kirim ke printer
+      const encoder = new TextEncoder();
+      const value = encoder.encode(text);
+      await characteristic.writeValue(value);
+
+      alert("✅ Data terkirim ke printer RPP02N");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Gagal print: " + err.message);
+    }
   };
 
   if (!tagihan) return <div>TAGIHAN TIDAK DITEMUKAN !!!</div>;
