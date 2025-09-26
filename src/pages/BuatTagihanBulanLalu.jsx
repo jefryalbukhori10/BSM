@@ -165,7 +165,10 @@ export default function BuatTagihanBulanLalu() {
 
       {/* Daftar Tagihan Dinamis */}
       {tagihanList.map((t, index) => (
-        <div key={index} className="border p-4 rounded mb-4 relative">
+        <div
+          key={index}
+          className="border border-gray-300 p-4 rounded mb-4 relative"
+        >
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {/* Bulan */}
             <div>
