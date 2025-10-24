@@ -347,10 +347,10 @@ const PrintPreviewScreen = () => {
       text += `Alamat : ${pelanggan.alamat || "-"}\n`;
       text += `Bulan  : ${tagihan.bulan || "-"}\n`;
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
-      text += garis + "\n";
+      // text += garis + "\n";
 
       // Bagian STAN
-      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n\n`;
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m3\n\n`;
 
       // Baris tarif — logika sesuai React component kamu
       const baris = [];
@@ -359,7 +359,7 @@ const PrintPreviewScreen = () => {
       baris.push({
         label: "31>",
         harga: 3000,
-        jumlah: tagihan.jumlahPakai > 30 ? `${tagihan.lebih} m³` : "",
+        jumlah: tagihan.jumlahPakai > 30 ? `${tagihan.lebih} m3` : "",
         total:
           tagihan.jumlahPakai > 30
             ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
@@ -372,7 +372,7 @@ const PrintPreviewScreen = () => {
         harga: 2000,
         jumlah:
           tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
-            ? `${tagihan.lebih} m³`
+            ? `${tagihan.lebih} m3`
             : "",
         total:
           tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
@@ -386,7 +386,7 @@ const PrintPreviewScreen = () => {
         harga: 1500,
         jumlah:
           tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
-            ? `${tagihan.lebih} m³`
+            ? `${tagihan.lebih} m3`
             : "",
         total:
           tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
@@ -398,7 +398,7 @@ const PrintPreviewScreen = () => {
       baris.push({
         label: "MINIMAL",
         harga: "",
-        jumlah: "10 m³",
+        jumlah: "10 m3",
         total: "15.000",
       });
       baris.push({ label: "BEBAN", harga: "", jumlah: "", total: "5.000" });
