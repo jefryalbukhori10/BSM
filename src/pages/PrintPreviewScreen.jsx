@@ -330,8 +330,9 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // 1️⃣ Tangkap elemen struk jadi gambar
-      const element = document.getElementById("print-preview"); // ganti id sesuai elemen preview kamu
+      // // 1️⃣ Tangkap elemen struk jadi gambar
+      // const element = document.getElementById("print-preview"); // ganti id sesuai elemen preview kamu
+      const element = previewRef.current;
       const canvas = await html2canvas(element, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
 
