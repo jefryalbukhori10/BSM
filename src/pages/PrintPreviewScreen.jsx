@@ -190,7 +190,7 @@ const PrintPreviewScreen = () => {
   const handlePrint = async () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "RPP" }],
+        filters: [{ namePrefix: "RPP" }], // ganti sesuai merk printermu
         optionalServices: [0xffe0, 0x18f0, 0x1101],
       });
 
@@ -218,7 +218,7 @@ const PrintPreviewScreen = () => {
           connected = true;
           break;
         } catch {
-          console.log("sasa");
+          console.log("ds");
         }
       }
 
@@ -227,8 +227,12 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // 🧾 Format cetak rapi
+      // =======================================
+      // 🧾 FORMAT STRUK UNTUK LEBAR 6 CM
+      // =======================================
       const garis = "=".repeat(32);
+      const spasi = (str = "") => str.padEnd(32, " ");
+
       let text = "";
       text += " KPSPAMS BATHORO SURYO MAKMUR\n";
       text += " Dusun Sukoyuwono Desa Palaan\n";
@@ -240,38 +244,38 @@ const PrintPreviewScreen = () => {
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
       text += garis + "\n";
       text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
+      text += "-".repeat(32) + "\n";
 
-      text += "--------------------------------\n";
-      text += " 31 >      3.000 x    0 m³  = 0\n";
+      // 👇 Format baris biaya
+      text += " 31>      3.000 x    0 m3 =     0\n";
       if (tagihan.jumlahPakai > 20)
-        text += ` 21 > 30   2.000 x ${tagihan.lebih
+        text += ` 21>30   2.000 x ${tagihan.lebih
           .toString()
-          .padStart(2, " ")} m³ = ${Number(tagihan.hargaLebih)
+          .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
           .toLocaleString("id-ID")
           .padStart(6, " ")}\n`;
-      else text += " 21 > 30   2.000 x    0 m³  = 0\n";
+      else text += " 21>30   2.000 x    0 m3 =     0\n";
 
       if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai <= 20)
-        text += ` 11 > 20   1.500 x ${tagihan.lebih
+        text += ` 11>20   1.500 x ${tagihan.lebih
           .toString()
-          .padStart(2, " ")} m³ = ${Number(tagihan.hargaLebih)
+          .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
           .toLocaleString("id-ID")
           .padStart(6, " ")}\n`;
-      else text += " 11 > 20   1.500 x    0 m³  = 0\n";
+      else text += " 11>20   1.500 x    0 m3 =     0\n";
 
-      text += ` MINIMAL         10 m³ = 15.000\n`;
-      text += ` BEBAN                =  5.000\n`;
+      text += " MINIMAL        10 m3 = 15.000\n";
+      text += " BEBAN               =  5.000\n";
       text += garis + "\n";
       text += `TOTAL TAGIHAN : Rp ${Number(
         tagihan.jumlahTagihan
       ).toLocaleString("id-ID")}\n`;
       text += garis + "\n\n";
-
       text +=
-        "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
+        "Gunakan air dengan bijak.\nPembayaran paling lambat tgl 28.\n3 bulan menunggak = pemutusan.\nBayar di Toko Zaenal.\n\n";
       text += `Dicetak pada ${tanggalCetak}\n\n\n`;
 
-      // 🔹 Kirim ke printer
+      // Kirim ke printer
       const encoder = new TextEncoder();
       const bytes = encoder.encode(text);
       const chunkSize = 200;
