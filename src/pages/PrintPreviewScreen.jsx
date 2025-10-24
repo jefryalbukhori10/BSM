@@ -189,15 +189,13 @@ const PrintPreviewScreen = () => {
 
   const handlePrint = async () => {
     try {
-      // 🔹 1. Pilih perangkat Bluetooth
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "RPP" }], // bisa ubah misalnya: [{ namePrefix: "ZJ" }]
+        filters: [{ namePrefix: "RPP" }],
         optionalServices: [0xffe0, 0x18f0, 0x1101],
       });
 
       const server = await device.gatt.connect();
 
-      // 🔹 2. Daftar UUID service & characteristic yang umum
       const possiblePairs = [
         { service: 0xffe0, char: 0xffe1 },
         {
@@ -213,18 +211,14 @@ const PrintPreviewScreen = () => {
       let connected = false;
       let characteristic = null;
 
-      // 🔹 3. Coba semua pasangan UUID sampai berhasil
       for (const pair of possiblePairs) {
         try {
-          console.log(`🔍 Mencoba service ${pair.service}`);
           const service = await server.getPrimaryService(pair.service);
           characteristic = await service.getCharacteristic(pair.char);
           connected = true;
-          console.log(`✅ Berhasil konek dengan ${pair.service}`);
           break;
-        } catch (err) {
-          console.log(err);
-          console.log(`❌ Gagal konek dengan ${pair.service}`);
+        } catch {
+          alert("Gagal");
         }
       }
 
@@ -233,7 +227,7 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // 📝 Susun teks ESC/POS sesuai dengan struk di layar
+      // 🧾 Teks struk
       let text = "";
       text += "KPSPAMS BATHORO SURYO MAKMUR\n";
       text += "Dusun Sukoyuwono Desa Palaan\n";
@@ -244,21 +238,17 @@ const PrintPreviewScreen = () => {
       text += `Bulan  : ${tagihan.bulan || "-"}\n`;
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
       text += "========================================\n";
-
       text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
 
-      // Hitungan blok tarif
       if (tagihan.jumlahPakai > 30) {
         text += `31 >   3000 x ${tagihan.lebih} m³ = Rp${Number(
           tagihan.hargaLebih
         ).toLocaleString("id-ID")}\n`;
-      }
-      if (tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31) {
+      } else if (tagihan.jumlahPakai > 20) {
         text += `21-30  2000 x ${tagihan.lebih} m³ = Rp${Number(
           tagihan.hargaLebih
         ).toLocaleString("id-ID")}\n`;
-      }
-      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21) {
+      } else if (tagihan.jumlahPakai > 10) {
         text += `11-20  1500 x ${tagihan.lebih} m³ = Rp${Number(
           tagihan.hargaLebih
         ).toLocaleString("id-ID")}\n`;
@@ -267,23 +257,27 @@ const PrintPreviewScreen = () => {
       text += `MINIMAL 10 m³ = Rp15.000\n`;
       text += `BEBAN        = Rp5.000\n`;
       text += "========================================\n";
-
       text += `TOTAL TAGIHAN : Rp${Number(tagihan.jumlahTagihan).toLocaleString(
         "id-ID"
       )}\n\n`;
-
       text +=
         "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
       text += `Dicetak pada ${tanggalCetak}\n\n\n\n`;
 
-      // Konversi ke byte dan kirim ke printer
+      // 🔹 Bagi teks menjadi potongan <= 200 karakter
       const encoder = new TextEncoder();
-      const value = encoder.encode(text);
-      await characteristic.writeValue(encoder.encode(value));
+      const bytes = encoder.encode(text);
+      const chunkSize = 200;
 
-      alert("✅ Printer berhasil dihubungkan & mencetak tes!");
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.slice(i, i + chunkSize);
+        await characteristic.writeValue(chunk);
+        await new Promise((r) => setTimeout(r, 100)); // jeda 100ms antar kiriman
+      }
+
+      alert("✅ Struk berhasil dikirim ke printer!");
     } catch (error) {
-      console.error("❌ Error koneksi printer:", error);
+      console.error(error);
       alert("❌ Gagal koneksi printer: " + error.message);
     }
   };
