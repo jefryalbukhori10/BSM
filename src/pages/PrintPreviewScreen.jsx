@@ -187,109 +187,6 @@ const PrintPreviewScreen = () => {
   //   }
   // };
 
-  // const handlePrint = async () => {
-  //   try {
-  //     const device = await navigator.bluetooth.requestDevice({
-  //       filters: [{ namePrefix: "RPP" }],
-  //       optionalServices: [0xffe0, 0x18f0, 0x1101],
-  //     });
-
-  //     const server = await device.gatt.connect();
-
-  //     const possiblePairs = [
-  //       { service: 0xffe0, char: 0xffe1 },
-  //       {
-  //         service: "000018f0-0000-1000-8000-00805f9b34fb",
-  //         char: "00002af1-0000-1000-8000-00805f9b34fb",
-  //       },
-  //       {
-  //         service: "00001101-0000-1000-8000-00805f9b34fb",
-  //         char: "00001101-0000-1000-8000-00805f9b34fb",
-  //       },
-  //     ];
-
-  //     let connected = false;
-  //     let characteristic = null;
-
-  //     for (const pair of possiblePairs) {
-  //       try {
-  //         const service = await server.getPrimaryService(pair.service);
-  //         characteristic = await service.getCharacteristic(pair.char);
-  //         connected = true;
-  //         break;
-  //       } catch {
-  //         console.log("yok");
-  //       }
-  //     }
-
-  //     if (!connected) {
-  //       alert("⚠️ Tidak ada UUID yang cocok dengan printer ini.");
-  //       return;
-  //     }
-
-  //     // 🧾 Teks struk
-  //     let text = "";
-  //     text += "KPSPAMS BATHORO SURYO MAKMUR\n";
-  //     text += "Dusun Sukoyuwono Desa Palaan\n";
-  //     text += "Kec. Ngajum Kab. Malang\n";
-  //     text += "==============================\n";
-  //     text += `Nama   : ${pelanggan.nama || "-"}\n`;
-  //     text += `Alamat : ${pelanggan.alamat || "-"}\n`;
-  //     text += `Bulan  : ${tagihan.bulan || "-"}\n`;
-  //     text += `Tahun  : ${tagihan.tahun || "-"}\n`;
-  //     text += "==============================\n";
-  //     text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
-
-  //     // 🧾 Bagian perhitungan tarif air
-  //     if (tagihan.jumlahPakai > 30) {
-  //       text += `31>   3000 x ${tagihan.lebih
-  //         .toString()
-  //         .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
-  //         .toLocaleString("id-ID")
-  //         .padStart(8, " ")}\n`;
-  //     } else if (tagihan.jumlahPakai > 20) {
-  //       text += `21>30  2000 x ${tagihan.lebih
-  //         .toString()
-  //         .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
-  //         .toLocaleString("id-ID")
-  //         .padStart(8, " ")}\n`;
-  //     } else if (tagihan.jumlahPakai > 10) {
-  //       text += `11>20  1500 x ${tagihan.lebih
-  //         .toString()
-  //         .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
-  //         .toLocaleString("id-ID")
-  //         .padStart(8, " ")}\n`;
-  //     }
-
-  //     // Tambahan biaya tetap
-  //     text += `MINIMAL 10 m3             = Rp ${"15.000".padStart(8, " ")}\n`;
-  //     text += `BEBAN                    = Rp ${"5.000".padStart(8, " ")}\n`;
-  //     text += "=========================\n";
-  //     text += `TOTAL TAGIHAN : Rp ${Number(
-  //       tagihan.jumlahTagihan
-  //     ).toLocaleString("id-ID")}\n\n`;
-  //     text +=
-  //       "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
-  //     text += `Dicetak pada ${tanggalCetak}\n\n\n\n`;
-
-  //     // 🔹 Bagi teks menjadi potongan <= 200 karakter
-  //     const encoder = new TextEncoder();
-  //     const bytes = encoder.encode(text);
-  //     const chunkSize = 200;
-
-  //     for (let i = 0; i < bytes.length; i += chunkSize) {
-  //       const chunk = bytes.slice(i, i + chunkSize);
-  //       await characteristic.writeValue(chunk);
-  //       await new Promise((r) => setTimeout(r, 100)); // jeda 100ms antar kiriman
-  //     }
-
-  //     alert("✅ Struk berhasil dikirim ke printer!");
-  //   } catch (error) {
-  //     console.error(error);
-  //     alert("❌ Gagal koneksi printer: " + error.message);
-  //   }
-  // };
-
   const handlePrint = async () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
@@ -321,7 +218,7 @@ const PrintPreviewScreen = () => {
           connected = true;
           break;
         } catch {
-          console.log("UUID ini tidak cocok, lanjut...");
+          console.log("sasa");
         }
       }
 
@@ -330,39 +227,65 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // // 1️⃣ Tangkap elemen struk jadi gambar
-      // const element = document.getElementById("print-preview"); // ganti id sesuai elemen preview kamu
-      const element = previewRef.current;
-      const canvas = await html2canvas(element, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
+      // 🧾 Format cetak rapi
+      const garis = "=".repeat(32);
+      let text = "";
+      text += " KPSPAMS BATHORO SURYO MAKMUR\n";
+      text += " Dusun Sukoyuwono Desa Palaan\n";
+      text += " Kec. Ngajum Kab. Malang\n";
+      text += garis + "\n";
+      text += `Nama   : ${pelanggan.nama || "-"}\n`;
+      text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+      text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+      text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+      text += garis + "\n";
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
 
-      // 2️⃣ Ubah Base64 ke byte array
-      const base64 = imgData.split(",")[1];
-      const binary = atob(base64);
-      const len = binary.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
+      text += "--------------------------------\n";
+      text += " 31 >      3.000 x    0 m³  = 0\n";
+      if (tagihan.jumlahPakai > 20)
+        text += ` 21 > 30   2.000 x ${tagihan.lebih
+          .toString()
+          .padStart(2, " ")} m³ = ${Number(tagihan.hargaLebih)
+          .toLocaleString("id-ID")
+          .padStart(6, " ")}\n`;
+      else text += " 21 > 30   2.000 x    0 m³  = 0\n";
 
-      // 3️⃣ Tambahkan command ESC/POS (agar printer thermal paham)
-      // (biasanya ESC * m nL nH + image data + line feed)
-      // Di sini kita kirim sebagai raw bytes (bisa dicetak sebagai raster)
-      const chunkSize = 180; // batas kirim per potongan
+      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai <= 20)
+        text += ` 11 > 20   1.500 x ${tagihan.lebih
+          .toString()
+          .padStart(2, " ")} m³ = ${Number(tagihan.hargaLebih)
+          .toLocaleString("id-ID")
+          .padStart(6, " ")}\n`;
+      else text += " 11 > 20   1.500 x    0 m³  = 0\n";
+
+      text += ` MINIMAL         10 m³ = 15.000\n`;
+      text += ` BEBAN                =  5.000\n`;
+      text += garis + "\n";
+      text += `TOTAL TAGIHAN : Rp ${Number(
+        tagihan.jumlahTagihan
+      ).toLocaleString("id-ID")}\n`;
+      text += garis + "\n\n";
+
+      text +=
+        "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
+      text += `Dicetak pada ${tanggalCetak}\n\n\n`;
+
+      // 🔹 Kirim ke printer
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(text);
+      const chunkSize = 200;
+
       for (let i = 0; i < bytes.length; i += chunkSize) {
         const chunk = bytes.slice(i, i + chunkSize);
         await characteristic.writeValue(chunk);
-        await new Promise((r) => setTimeout(r, 80));
+        await new Promise((r) => setTimeout(r, 100));
       }
 
-      // 4️⃣ Tambahkan beberapa baris kosong di akhir biar hasil print tidak kepotong
-      const feed = new TextEncoder().encode("\n\n\n");
-      await characteristic.writeValue(feed);
-
-      alert("✅ Gambar struk berhasil dikirim ke printer!");
+      alert("✅ Struk berhasil dikirim ke printer!");
     } catch (error) {
       console.error(error);
-      alert("❌ Gagal mencetak: " + error);
+      alert("❌ Gagal mencetak: " + error.message);
     }
   };
 
