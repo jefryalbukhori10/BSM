@@ -187,10 +187,116 @@ const PrintPreviewScreen = () => {
   //   }
   // };
 
+  // const handlePrint = async () => {
+  //   try {
+  //     const device = await navigator.bluetooth.requestDevice({
+  //       filters: [{ namePrefix: "RPP" }], // ganti sesuai merk printermu
+  //       optionalServices: [0xffe0, 0x18f0, 0x1101],
+  //     });
+
+  //     const server = await device.gatt.connect();
+
+  //     const possiblePairs = [
+  //       { service: 0xffe0, char: 0xffe1 },
+  //       {
+  //         service: "000018f0-0000-1000-8000-00805f9b34fb",
+  //         char: "00002af1-0000-1000-8000-00805f9b34fb",
+  //       },
+  //       {
+  //         service: "00001101-0000-1000-8000-00805f9b34fb",
+  //         char: "00001101-0000-1000-8000-00805f9b34fb",
+  //       },
+  //     ];
+
+  //     let connected = false;
+  //     let characteristic = null;
+
+  //     for (const pair of possiblePairs) {
+  //       try {
+  //         const service = await server.getPrimaryService(pair.service);
+  //         characteristic = await service.getCharacteristic(pair.char);
+  //         connected = true;
+  //         break;
+  //       } catch {
+  //         console.log("ds");
+  //       }
+  //     }
+
+  //     if (!connected) {
+  //       alert("⚠️ Tidak ada UUID yang cocok dengan printer ini.");
+  //       return;
+  //     }
+
+  //     // =======================================
+  //     // 🧾 FORMAT STRUK UNTUK LEBAR 6 CM
+  //     // =======================================
+  //     const garis = "=".repeat(32);
+  //     const spasi = (str = "") => str.padEnd(32, " ");
+
+  //     let text = "";
+  //     text += " KPSPAMS BATHORO SURYO MAKMUR\n";
+  //     text += " Dusun Sukoyuwono Desa Palaan\n";
+  //     text += " Kec. Ngajum Kab. Malang\n";
+  //     text += garis + "\n";
+  //     text += `Nama   : ${pelanggan.nama || "-"}\n`;
+  //     text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+  //     text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+  //     text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+  //     text += garis + "\n";
+  //     text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m3\n`;
+  //     text += "-".repeat(32) + "\n";
+
+  //     // 👇 Format baris biaya
+  //     text += " 31>      3.000 x    0 m3 =     0\n";
+  //     if (tagihan.jumlahPakai > 20)
+  //       text += ` 21>30   2.000 x ${tagihan.lebih
+  //         .toString()
+  //         .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
+  //         .toLocaleString("id-ID")
+  //         .padStart(6, " ")}\n`;
+  //     else text += " 21>30   2.000 x\n";
+
+  //     if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai <= 20)
+  //       text += ` 11>20   1.500 x ${tagihan.lebih
+  //         .toString()
+  //         .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
+  //         .toLocaleString("id-ID")
+  //         .padStart(6, " ")}\n`;
+  //     else text += " 11>20   1.500 x\n";
+
+  //     text += " MINIMAL 10 m3 = 15.000\n";
+  //     text += " BEBAN         =  5.000\n";
+  //     text += garis + "\n";
+  //     text += `TOTAL TAGIHAN : Rp ${Number(
+  //       tagihan.jumlahTagihan
+  //     ).toLocaleString("id-ID")}\n`;
+  //     text += garis + "\n\n";
+  //     text +=
+  //       "Gunakan air dengan bijak.\nPembayaran paling lambat tgl 28.\n3 bulan menunggak = pemutusan.\nBayar di Toko Zaenal.\n\n";
+  //     text += `Dicetak pada ${tanggalCetak}\n\n\n`;
+
+  //     // Kirim ke printer
+  //     const encoder = new TextEncoder();
+  //     const bytes = encoder.encode(text);
+  //     const chunkSize = 200;
+
+  //     for (let i = 0; i < bytes.length; i += chunkSize) {
+  //       const chunk = bytes.slice(i, i + chunkSize);
+  //       await characteristic.writeValue(chunk);
+  //       await new Promise((r) => setTimeout(r, 100));
+  //     }
+
+  //     alert("✅ Struk berhasil dikirim ke printer!");
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("❌ Gagal mencetak: " + error.message);
+  //   }
+  // };
+
   const handlePrint = async () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "RPP" }], // ganti sesuai merk printermu
+        filters: [{ namePrefix: "RPP" }], // ganti sesuai printer kamu
         optionalServices: [0xffe0, 0x18f0, 0x1101],
       });
 
@@ -218,7 +324,7 @@ const PrintPreviewScreen = () => {
           connected = true;
           break;
         } catch {
-          console.log("ds");
+          console.log("sds");
         }
       }
 
@@ -227,11 +333,10 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // =======================================
-      // 🧾 FORMAT STRUK UNTUK LEBAR 6 CM
-      // =======================================
+      // =============================
+      // 🧾 STRUK UNTUK LEBAR 6 CM
+      // =============================
       const garis = "=".repeat(32);
-      const spasi = (str = "") => str.padEnd(32, " ");
 
       let text = "";
       text += " KPSPAMS BATHORO SURYO MAKMUR\n";
@@ -243,29 +348,69 @@ const PrintPreviewScreen = () => {
       text += `Bulan  : ${tagihan.bulan || "-"}\n`;
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
       text += garis + "\n";
-      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
-      text += "-".repeat(32) + "\n";
 
-      // 👇 Format baris biaya
-      text += " 31>      3.000 x    0 m3 =     0\n";
-      if (tagihan.jumlahPakai > 20)
-        text += ` 21>30   2.000 x ${tagihan.lebih
-          .toString()
-          .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
-          .toLocaleString("id-ID")
-          .padStart(6, " ")}\n`;
-      else text += " 21>30   2.000 x    0 m3 =     0\n";
+      // Bagian STAN
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n\n`;
 
-      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai <= 20)
-        text += ` 11>20   1.500 x ${tagihan.lebih
-          .toString()
-          .padStart(2, " ")} m3 = ${Number(tagihan.hargaLebih)
-          .toLocaleString("id-ID")
-          .padStart(6, " ")}\n`;
-      else text += " 11>20   1.500 x    0 m3 =     0\n";
+      // Baris tarif — logika sesuai React component kamu
+      const baris = [];
 
-      text += " MINIMAL        10 m3 = 15.000\n";
-      text += " BEBAN               =  5.000\n";
+      // 31 >
+      baris.push({
+        label: "31>",
+        harga: 3000,
+        jumlah: tagihan.jumlahPakai > 30 ? `${tagihan.lebih} m³` : "",
+        total:
+          tagihan.jumlahPakai > 30
+            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+            : "0",
+      });
+
+      // 21 > 30
+      baris.push({
+        label: "21>30",
+        harga: 2000,
+        jumlah:
+          tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
+            ? `${tagihan.lebih} m³`
+            : "",
+        total:
+          tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
+            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+            : "0",
+      });
+
+      // 11 > 20
+      baris.push({
+        label: "11>20",
+        harga: 1500,
+        jumlah:
+          tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
+            ? `${tagihan.lebih} m³`
+            : "",
+        total:
+          tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
+            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+            : "0",
+      });
+
+      // Tambahan baris tetap
+      baris.push({
+        label: "MINIMAL",
+        harga: "",
+        jumlah: "10 m³",
+        total: "15.000",
+      });
+      baris.push({ label: "BEBAN", harga: "", jumlah: "", total: "5.000" });
+
+      // Format setiap baris (agar sejajar di 6cm paper)
+      for (const b of baris) {
+        text += `${b.label.padEnd(7, " ")} ${String(b.harga || "").padEnd(
+          6,
+          " "
+        )} X ${String(b.jumlah || "").padEnd(6, " ")} = ${b.total}\n`;
+      }
+
       text += garis + "\n";
       text += `TOTAL TAGIHAN : Rp ${Number(
         tagihan.jumlahTagihan
