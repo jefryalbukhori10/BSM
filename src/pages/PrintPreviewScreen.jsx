@@ -233,17 +233,53 @@ const PrintPreviewScreen = () => {
         return;
       }
 
-      // 🔹 4. Kirim teks uji ke printer
+      // 📝 Susun teks ESC/POS sesuai dengan struk di layar
+      let text = "";
+      text += "KPSPAMS BATHORO SURYO MAKMUR\n";
+      text += "Dusun Sukoyuwono Desa Palaan\n";
+      text += "Kec. Ngajum Kab. Malang\n";
+      text += "========================================\n";
+      text += `Nama   : ${pelanggan.nama || "-"}\n`;
+      text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+      text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+      text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+      text += "========================================\n";
+
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
+
+      // Hitungan blok tarif
+      if (tagihan.jumlahPakai > 30) {
+        text += `31 >   3000 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+      if (tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31) {
+        text += `21-30  2000 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21) {
+        text += `11-20  1500 x ${tagihan.lebih} m³ = Rp${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}\n`;
+      }
+
+      text += `MINIMAL 10 m³ = Rp15.000\n`;
+      text += `BEBAN        = Rp5.000\n`;
+      text += "========================================\n";
+
+      text += `TOTAL TAGIHAN : Rp${Number(tagihan.jumlahTagihan).toLocaleString(
+        "id-ID"
+      )}\n\n`;
+
+      text +=
+        "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
+      text += `Dicetak pada ${tanggalCetak}\n\n\n\n`;
+
+      // Konversi ke byte dan kirim ke printer
       const encoder = new TextEncoder();
-      const testText =
-        "==============================\n" +
-        "   🧾 TES KONEKSI PRINTER 🧾\n" +
-        "==============================\n" +
-        "Printer berhasil dihubungkan!\n" +
-        "Waktu cetak: " +
-        new Date().toLocaleString("id-ID") +
-        "\n\n\n";
-      await characteristic.writeValue(encoder.encode(testText));
+      const value = encoder.encode(text);
+      await characteristic.writeValue(encoder.encode(value));
 
       alert("✅ Printer berhasil dihubungkan & mencetak tes!");
     } catch (error) {
