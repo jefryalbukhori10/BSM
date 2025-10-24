@@ -361,7 +361,7 @@ const PrintPreviewScreen = () => {
       alert("✅ Gambar struk berhasil dikirim ke printer!");
     } catch (error) {
       console.error(error);
-      alert("❌ Gagal mencetak: " + error.message);
+      alert("❌ Gagal mencetak: " + error);
     }
   };
 
