@@ -218,7 +218,7 @@ const PrintPreviewScreen = () => {
           connected = true;
           break;
         } catch {
-          alert("Gagal");
+          console.log("yok");
         }
       }
 
@@ -232,34 +232,42 @@ const PrintPreviewScreen = () => {
       text += "KPSPAMS BATHORO SURYO MAKMUR\n";
       text += "Dusun Sukoyuwono Desa Palaan\n";
       text += "Kec. Ngajum Kab. Malang\n";
-      text += "========================================\n";
+      text += "==============================\n";
       text += `Nama   : ${pelanggan.nama || "-"}\n`;
       text += `Alamat : ${pelanggan.alamat || "-"}\n`;
       text += `Bulan  : ${tagihan.bulan || "-"}\n`;
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
-      text += "========================================\n";
+      text += "==============================\n";
       text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
 
+      // 🧾 Bagian perhitungan tarif air
       if (tagihan.jumlahPakai > 30) {
-        text += `31 >   3000 x ${tagihan.lebih} m³ = Rp${Number(
-          tagihan.hargaLebih
-        ).toLocaleString("id-ID")}\n`;
+        text += `31>   3000 x ${tagihan.lebih
+          .toString()
+          .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
+          .toLocaleString("id-ID")
+          .padStart(8, " ")}\n`;
       } else if (tagihan.jumlahPakai > 20) {
-        text += `21-30  2000 x ${tagihan.lebih} m³ = Rp${Number(
-          tagihan.hargaLebih
-        ).toLocaleString("id-ID")}\n`;
+        text += `21>30  2000 x ${tagihan.lebih
+          .toString()
+          .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
+          .toLocaleString("id-ID")
+          .padStart(8, " ")}\n`;
       } else if (tagihan.jumlahPakai > 10) {
-        text += `11-20  1500 x ${tagihan.lebih} m³ = Rp${Number(
-          tagihan.hargaLebih
-        ).toLocaleString("id-ID")}\n`;
+        text += `11>20  1500 x ${tagihan.lebih
+          .toString()
+          .padStart(2, " ")} m3  = Rp ${Number(tagihan.hargaLebih)
+          .toLocaleString("id-ID")
+          .padStart(8, " ")}\n`;
       }
 
-      text += `MINIMAL 10 m³ = Rp15.000\n`;
-      text += `BEBAN        = Rp5.000\n`;
-      text += "========================================\n";
-      text += `TOTAL TAGIHAN : Rp${Number(tagihan.jumlahTagihan).toLocaleString(
-        "id-ID"
-      )}\n\n`;
+      // Tambahan biaya tetap
+      text += `MINIMAL 10 m3             = Rp ${"15.000".padStart(8, " ")}\n`;
+      text += `BEBAN                    = Rp ${"5.000".padStart(8, " ")}\n`;
+      text += "=========================\n";
+      text += `TOTAL TAGIHAN : Rp ${Number(
+        tagihan.jumlahTagihan
+      ).toLocaleString("id-ID")}\n\n`;
       text +=
         "Gunakan air dengan bijak.\nPembayaran paling lambat tanggal 28.\nTiga bulan tidak membayar = pemutusan.\nBayar di Toko Zaenal.\n\n";
       text += `Dicetak pada ${tanggalCetak}\n\n\n\n`;
