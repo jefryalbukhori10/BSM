@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaFileAlt,
@@ -7,8 +7,12 @@ import {
   FaUsers,
   FaExpand,
   FaCompress,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/config";
+import Swal from "sweetalert2";
 
 export default function MainLayout() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -22,6 +26,30 @@ export default function MainLayout() {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("isLoggedIn");
+      Swal.fire({
+        icon: "success",
+        title: "Logout Berhasil!",
+        text: "Sampai Jumpa Kembali Admin 💧",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: "#e0f7ff",
+        color: "#0369a1",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Gagal logout:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-16 pb-14 bg-gray-100">
       {/* Header - fixed di atas */}
@@ -30,9 +58,27 @@ export default function MainLayout() {
           <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
           <span className="font-bold text-white">Bathoro Suryo Makmur</span>
         </Link>
-        <button onClick={toggleFullscreen} className="text-white text-xl">
-          {isFullscreen ? <FaCompress /> : <FaExpand />}
-        </button>
+        {/* Kanan: tombol fullscreen + logout */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleFullscreen}
+            className="text-white text-xl hover:text-blue-200 transition-colors"
+            title={
+              isFullscreen ? "Keluar dari fullscreen" : "Masuk ke fullscreen"
+            }
+          >
+            {isFullscreen ? <FaCompress /> : <FaExpand />}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-white text-blue-900 hover:bg-blue-800 hover:text-white hover:border  transition-all px-3 py-1 rounded-md text-sm font-semibold shadow cursor-pointer"
+            title="Logout"
+          >
+            <FaSignOutAlt />
+            <span>Logout</span>
+          </button>
+        </div>
       </header>
 
       {/* Konten scrollable */}

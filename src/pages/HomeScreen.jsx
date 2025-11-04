@@ -19,8 +19,16 @@ export default function Home() {
   const [jumlahPelanggan, setJumlahPelanggan] = useState(0);
   const [jumlahTagihanBelumLunas, setJumlahTagihanBelumLunas] = useState(0);
   const [totalPemasukan, setTotalPemasukan] = useState(0);
+  const [sapaan, setSapaan] = useState("");
 
   useEffect(() => {
+    // Atur sapaan berdasarkan waktu
+    const jam = new Date().getHours();
+    if (jam >= 4 && jam < 11) setSapaan("Selamat Pagi, Admin ☀️");
+    else if (jam >= 11 && jam < 15) setSapaan("Selamat Siang, Admin 😎");
+    else if (jam >= 15 && jam < 18) setSapaan("Selamat Sore, Admin 🌤️");
+    else setSapaan("Selamat Malam, Admin 🌙");
+
     const fetchData = async () => {
       try {
         // Ambil semua pelanggan
@@ -68,7 +76,21 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-graay-100">
+    <div className="min-h-screen bg-gray-100">
+      {/* Sapaan */}
+      <div className="text-center pt-8 px-4 relative">
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-2xl font-bold text-blue-800 drop-shadow-sm"
+        >
+          {sapaan}
+        </motion.h1>
+        <p className="text-gray-700 text-sm mt-1">
+          Semoga harimu menyegarkan seperti aliran air 💧
+        </p>
+      </div>
       {/* Tombol Buat Tagihan */}
       <div className="max-w-screen-sm mx-auto px-4 mb-6 mt-6">
         <Link to="/app/buat-tagihan">

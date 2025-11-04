@@ -18,43 +18,139 @@ const PrintPreviewTagihanBulahLalu = () => {
     fetchData();
   }, [id]);
 
+  // const handlePrint = async () => {
+  //   try {
+  //     const device = await navigator.bluetooth.requestDevice({
+  //       filters: [{ namePrefix: "RPP" }], // cari printer RPP02N
+  //       optionalServices: [0xffe0],
+  //     });
+
+  //     const server = await device.gatt.connect();
+  //     const service = await server.getPrimaryService(0xffe0);
+  //     const characteristic = await service.getCharacteristic(0xffe1);
+
+  //     // format ESC/POS text
+  //     let text = `\nKPSPAMS BATHORO SURYO MAKMUR\n`;
+  //     text += `Dusun Sukoyuwono Desa Palaan\n`;
+  //     text += `Kec. Ngajum Kab. Malang\n\n`;
+  //     text += `TAGIHAN BULAN LALU\n\n`;
+  //     text += `Nama : ${data.namaPelanggan}\n`;
+  //     text += `Alamat : ${data.alamatPelanggan}\n\n`;
+
+  //     data.tagihanList.forEach((t, i) => {
+  //       text += `${i + 1}. ${t.bulan}  Rp${t.jumlahTagihan.toLocaleString(
+  //         "id-ID"
+  //       )}\n`;
+  //     });
+
+  //     text += `-----------------------------\n`;
+  //     text += `TOTAL : Rp${data.total.toLocaleString("id-ID")}\n\n\n\n`;
+
+  //     // konversi string ke Uint8Array
+  //     const encoder = new TextEncoder();
+  //     const value = encoder.encode(text);
+
+  //     await characteristic.writeValue(value);
+
+  //     alert("✅ Data terkirim ke printer RPP02N");
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("❌ Gagal print: " + err.message);
+  //   }
+  // };
+
   const handlePrint = async () => {
     try {
+      // Pilih printer (contoh: RPP02N, ZJ-5890, Panda, dll)
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "RPP" }], // cari printer RPP02N
-        optionalServices: [0xffe0],
+        acceptAllDevices: true,
+        optionalServices: [
+          0xffe0,
+          0xfff0,
+          0xae30,
+          "000018f0-0000-1000-8000-00805f9b34fb",
+          "000018f1-0000-1000-8000-00805f9b34fb",
+          "49535343-fe7d-4ae5-8fa9-9fafd205e455", // serial-like
+          "00001101-0000-1000-8000-00805f9b34fb", // RFCOMM-like
+        ],
       });
 
       const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(0xffe0);
-      const characteristic = await service.getCharacteristic(0xffe1);
 
-      // format ESC/POS text
-      let text = `\nKPSPAMS BATHORO SURYO MAKMUR\n`;
-      text += `Dusun Sukoyuwono Desa Palaan\n`;
-      text += `Kec. Ngajum Kab. Malang\n\n`;
-      text += `TAGIHAN BULAN LALU\n\n`;
-      text += `Nama : ${data.namaPelanggan}\n`;
-      text += `Alamat : ${data.alamatPelanggan}\n\n`;
+      // Daftar kombinasi service-characteristic yang umum digunakan printer Bluetooth
+      const candidatePairs = [
+        { service: 0xffe0, characteristic: 0xffe1 },
+        { service: 0xfff0, characteristic: 0xfff1 },
+        { service: 0xae30, characteristic: 0xae01 },
+        {
+          service: "000018f0-0000-1000-8000-00805f9b34fb",
+          characteristic: "00002af1-0000-1000-8000-00805f9b34fb",
+        },
+        {
+          service: "49535343-fe7d-4ae5-8fa9-9fafd205e455",
+          characteristic: "49535343-8841-43f4-a8d4-ecbe34729bb3",
+        },
+        {
+          service: "00001101-0000-1000-8000-00805f9b34fb",
+          characteristic: "00001101-0000-1000-8000-00805f9b34fb",
+        },
+      ];
+
+      let printerChar = null;
+
+      // Coba koneksi ke semua kombinasi hingga berhasil
+      for (const pair of candidatePairs) {
+        try {
+          const service = await server.getPrimaryService(pair.service);
+          printerChar = await service.getCharacteristic(pair.characteristic);
+          console.log("✅ Terhubung ke UUID:", pair);
+          break;
+        } catch (e) {
+          console.log(e);
+          console.log("❌ Gagal dengan UUID:", pair);
+        }
+      }
+
+      if (!printerChar) {
+        alert("⚠️ Tidak menemukan UUID yang cocok untuk printer ini.");
+        return;
+      }
+
+      // =============================
+      // 🧾 FORMAT STRUK CETAK
+      // =============================
+      let text = "\nKPSPAMS BATHORO SURYO MAKMUR\n";
+      text += "Dusun Sukoyuwono Desa Palaan\n";
+      text += "Kec. Ngajum Kab. Malang\n";
+      text += "==============================\n";
+      text += "TAGIHAN BULAN LALU\n\n";
+      text += `Nama   : ${data.namaPelanggan}\n`;
+      text += `Alamat : ${data.alamatPelanggan}\n`;
+      text += "------------------------------\n";
 
       data.tagihanList.forEach((t, i) => {
-        text += `${i + 1}. ${t.bulan}  Rp${t.jumlahTagihan.toLocaleString(
-          "id-ID"
-        )}\n`;
+        text += `${String(i + 1).padEnd(2)} ${t.bulan.padEnd(
+          10
+        )} Rp${t.jumlahTagihan.toLocaleString("id-ID")}\n`;
       });
 
-      text += `-----------------------------\n`;
-      text += `TOTAL : Rp${data.total.toLocaleString("id-ID")}\n\n\n\n`;
+      text += "------------------------------\n";
+      text += `TOTAL : Rp${data.total.toLocaleString("id-ID")}\n\n\n`;
 
-      // konversi string ke Uint8Array
+      // ubah teks ke byte dan kirim per 200 byte (aman untuk printer BLE)
       const encoder = new TextEncoder();
-      const value = encoder.encode(text);
+      const bytes = encoder.encode(text);
+      const chunkSize = 200;
 
-      await characteristic.writeValue(value);
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.slice(i, i + chunkSize);
+        await printerChar.writeValue(chunk);
+        await new Promise((r) => setTimeout(r, 100));
+      }
 
-      alert("✅ Data terkirim ke printer RPP02N");
+      alert("✅ Data berhasil dikirim ke printer!");
     } catch (err) {
-      console.error(err);
+      console.error("❌ Gagal print:", err);
       alert("❌ Gagal print: " + err.message);
     }
   };

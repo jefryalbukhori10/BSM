@@ -4,8 +4,14 @@ import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/config"; // pastikan path ini sesuai
 import moment from "moment";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import { FaFileImage, FaFilePdf, FaPrint } from "react-icons/fa";
+// import jsPDF from "jspdf";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaFileImage,
+  FaFilePdf,
+  FaPrint,
+} from "react-icons/fa";
 
 const PrintPreviewScreen = () => {
   const location = useLocation();
@@ -14,6 +20,8 @@ const PrintPreviewScreen = () => {
   const [tagihan, setTagihan] = useState([]);
   const [pelanggan, setPelanggan] = useState([]);
   const previewRef = useRef(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewText, setPreviewText] = useState("");
 
   useEffect(() => {
     const fetchTagihan = async () => {
@@ -61,29 +69,29 @@ const PrintPreviewScreen = () => {
   };
 
   // 📄 DOWNLOAD PDF
-  const handleDownloadPDF = async () => {
-    const element = previewRef.current;
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
+  // const handleDownloadPDF = async () => {
+  //   const element = previewRef.current;
+  //   const canvas = await html2canvas(element);
+  //   const imgData = canvas.toDataURL("image/png");
 
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
+  //   const imgWidth = canvas.width;
+  //   const imgHeight = canvas.height;
 
-    const randomIndex = Math.floor(Math.random() * 10000);
+  //   const randomIndex = Math.floor(Math.random() * 10000);
 
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [imgWidth, imgHeight],
-    });
+  //   const pdf = new jsPDF({
+  //     orientation: "portrait",
+  //     unit: "px",
+  //     format: [imgWidth, imgHeight],
+  //   });
 
-    // ⬅️ Masukkan ukuran di sini agar gambar tampil full 1 halaman
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  //   // ⬅️ Masukkan ukuran di sini agar gambar tampil full 1 halaman
+  //   pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
-    pdf.save(
-      `Tagihan_${pelanggan.nama}_${tagihan.bulan}_${tagihan.tahun}_Index_${randomIndex}.pdf`
-    );
-  };
+  //   pdf.save(
+  //     `Tagihan_${pelanggan.nama}_${tagihan.bulan}_${tagihan.tahun}_Index_${randomIndex}.pdf`
+  //   );
+  // };
 
   // 🖨️ PRINT
   // const handlePrint = async () => {
@@ -293,10 +301,155 @@ const PrintPreviewScreen = () => {
   //   }
   // };
 
+  // 04/11/25
+  // const handlePrint = async () => {
+  //   try {
+  //     const device = await navigator.bluetooth.requestDevice({
+  //       filters: [{ namePrefix: "RPP" }], // ganti sesuai printer kamu
+  //       optionalServices: [0xffe0, 0x18f0, 0x1101],
+  //     });
+
+  //     const server = await device.gatt.connect();
+
+  //     const possiblePairs = [
+  //       { service: 0xffe0, char: 0xffe1 },
+  //       {
+  //         service: "000018f0-0000-1000-8000-00805f9b34fb",
+  //         char: "00002af1-0000-1000-8000-00805f9b34fb",
+  //       },
+  //       {
+  //         service: "00001101-0000-1000-8000-00805f9b34fb",
+  //         char: "00001101-0000-1000-8000-00805f9b34fb",
+  //       },
+  //     ];
+
+  //     let connected = false;
+  //     let characteristic = null;
+
+  //     for (const pair of possiblePairs) {
+  //       try {
+  //         const service = await server.getPrimaryService(pair.service);
+  //         characteristic = await service.getCharacteristic(pair.char);
+  //         connected = true;
+  //         break;
+  //       } catch {
+  //         console.log("sds");
+  //       }
+  //     }
+
+  //     if (!connected) {
+  //       alert("⚠️ Tidak ada UUID yang cocok dengan printer ini.");
+  //       return;
+  //     }
+
+  //     // =============================
+  //     // 🧾 STRUK UNTUK LEBAR 6 CM
+  //     // =============================
+  //     const garis = "=".repeat(32);
+
+  //     let text = "";
+  //     text += " KPSPAMS BATHORO SURYO MAKMUR\n";
+  //     text += " Dusun Sukoyuwono Desa Palaan\n";
+  //     text += " Kec. Ngajum Kab. Malang\n";
+  //     text += garis + "\n";
+  //     text += `Nama   : ${pelanggan.nama || "-"}\n`;
+  //     text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+  //     text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+  //     text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+  //     // text += garis + "\n";
+
+  //     // Bagian STAN
+  //     text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m3\n\n`;
+
+  //     // Baris tarif — logika sesuai React component kamu
+  //     const baris = [];
+
+  //     // 31 >
+  //     baris.push({
+  //       label: "31>",
+  //       harga: 3000,
+  //       jumlah: tagihan.jumlahPakai > 30 ? `${tagihan.lebih} m3` : "",
+  //       total:
+  //         tagihan.jumlahPakai > 30
+  //           ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+  //           : "0",
+  //     });
+
+  //     // 21 > 30
+  //     baris.push({
+  //       label: "21>30",
+  //       harga: 2000,
+  //       jumlah:
+  //         tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
+  //           ? `${tagihan.lebih} m3`
+  //           : "",
+  //       total:
+  //         tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
+  //           ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+  //           : "0",
+  //     });
+
+  //     // 11 > 20
+  //     baris.push({
+  //       label: "11>20",
+  //       harga: 1500,
+  //       jumlah:
+  //         tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
+  //           ? `${tagihan.lebih} m3`
+  //           : "",
+  //       total:
+  //         tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
+  //           ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
+  //           : "0",
+  //     });
+
+  //     // Tambahan baris tetap
+  //     baris.push({
+  //       label: "MINIMAL",
+  //       harga: "",
+  //       jumlah: "10 m3",
+  //       total: "15.000",
+  //     });
+  //     baris.push({ label: "BEBAN", harga: "", jumlah: "", total: "5.000" });
+
+  //     // Format setiap baris (agar sejajar di 6cm paper)
+  //     for (const b of baris) {
+  //       text += `${b.label.padEnd(7, " ")} ${String(b.harga || "").padEnd(
+  //         6,
+  //         " "
+  //       )} X ${String(b.jumlah || "").padEnd(6, " ")} = ${b.total}\n`;
+  //     }
+
+  //     text += garis + "\n";
+  //     text += `TOTAL TAGIHAN : Rp ${Number(
+  //       tagihan.jumlahTagihan
+  //     ).toLocaleString("id-ID")}\n`;
+  //     text += garis + "\n\n";
+  //     text +=
+  //       "Gunakan air dengan bijak.\nPembayaran paling lambat tgl 28.\n3 bulan menunggak = pemutusan.\nBayar di Toko Zaenal.\n\n";
+  //     text += `Dicetak pada ${tanggalCetak}\n\n\n`;
+
+  //     // Kirim ke printer
+  //     const encoder = new TextEncoder();
+  //     const bytes = encoder.encode(text);
+  //     const chunkSize = 200;
+
+  //     for (let i = 0; i < bytes.length; i += chunkSize) {
+  //       const chunk = bytes.slice(i, i + chunkSize);
+  //       await characteristic.writeValue(chunk);
+  //       await new Promise((r) => setTimeout(r, 100));
+  //     }
+
+  //     alert("✅ Struk berhasil dikirim ke printer!");
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("❌ Gagal mencetak: " + error.message);
+  //   }
+  // };
   const handlePrint = async () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "RPP" }], // ganti sesuai printer kamu
+        filters: [{ namePrefix: "RPP" }],
         optionalServices: [0xffe0, 0x18f0, 0x1101],
       });
 
@@ -314,113 +467,90 @@ const PrintPreviewScreen = () => {
         },
       ];
 
-      let connected = false;
       let characteristic = null;
-
       for (const pair of possiblePairs) {
         try {
           const service = await server.getPrimaryService(pair.service);
           characteristic = await service.getCharacteristic(pair.char);
-          connected = true;
           break;
         } catch {
-          console.log("sds");
+          console.log("UUID tidak cocok, mencoba berikutnya...");
         }
       }
 
-      if (!connected) {
+      if (!characteristic) {
         alert("⚠️ Tidak ada UUID yang cocok dengan printer ini.");
         return;
       }
 
       // =============================
-      // 🧾 STRUK UNTUK LEBAR 6 CM
+      // 🧾 FORMAT STRUK SAMA DENGAN PREVIEW
       // =============================
-      const garis = "=".repeat(32);
+
+      const lebarStruk = 32; // kira-kira 6 cm
+      const garis = "=".repeat(lebarStruk);
+      const tanggalCetak = moment().format("DD MMMM YYYY HH.mm");
+
+      const center = (text) => {
+        const pad = Math.floor((lebarStruk - text.length) / 2);
+        return " ".repeat(pad > 0 ? pad : 0) + text;
+      };
 
       let text = "";
-      text += " KPSPAMS BATHORO SURYO MAKMUR\n";
-      text += " Dusun Sukoyuwono Desa Palaan\n";
-      text += " Kec. Ngajum Kab. Malang\n";
+      text += center("KPSPAMS BATHORO SURYO MAKMUR") + "\n";
+      text += center("Dusun Sukoyuwono Desa Palaan") + "\n";
+      text += center("Kec. Ngajum Kab. Malang") + "\n";
       text += garis + "\n";
       text += `Nama   : ${pelanggan.nama || "-"}\n`;
       text += `Alamat : ${pelanggan.alamat || "-"}\n`;
       text += `Bulan  : ${tagihan.bulan || "-"}\n`;
       text += `Tahun  : ${tagihan.tahun || "-"}\n`;
-      // text += garis + "\n";
+      text += garis + "\n";
 
-      // Bagian STAN
-      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m3\n\n`;
+      text += `STAN ${tagihan.stanAwal} > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
 
-      // Baris tarif — logika sesuai React component kamu
+      // Format baris tarif seperti preview
       const baris = [];
 
-      // 31 >
-      baris.push({
-        label: "31>",
-        harga: 3000,
-        jumlah: tagihan.jumlahPakai > 30 ? `${tagihan.lebih} m3` : "",
-        total:
-          tagihan.jumlahPakai > 30
-            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
-            : "0",
-      });
+      if (tagihan.jumlahPakai > 30)
+        baris.push(
+          `>30     3.000 x ${tagihan.lebih.toString().padEnd(2)} = ${Number(
+            tagihan.hargaLebih
+          ).toLocaleString("id-ID")}`
+        );
+      else baris.push(`>30     3.000 x    0`);
 
-      // 21 > 30
-      baris.push({
-        label: "21>30",
-        harga: 2000,
-        jumlah:
-          tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
-            ? `${tagihan.lebih} m3`
-            : "",
-        total:
-          tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31
-            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
-            : "0",
-      });
+      if (tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31)
+        baris.push(
+          `21>30   2.000 x ${tagihan.lebih.toString().padEnd(2)} = ${Number(
+            tagihan.hargaLebih
+          ).toLocaleString("id-ID")}`
+        );
+      else baris.push(`21>30   2.000 x    0`);
 
-      // 11 > 20
-      baris.push({
-        label: "11>20",
-        harga: 1500,
-        jumlah:
-          tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
-            ? `${tagihan.lebih} m3`
-            : "",
-        total:
-          tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21
-            ? Number(tagihan.hargaLebih).toLocaleString("id-ID")
-            : "0",
-      });
+      if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21)
+        baris.push(
+          `11>20   1.500 x ${tagihan.lebih.toString().padEnd(2)} = ${Number(
+            tagihan.hargaLebih
+          ).toLocaleString("id-ID")}`
+        );
+      else baris.push(`11>20   1.500 x    0`);
 
-      // Tambahan baris tetap
-      baris.push({
-        label: "MINIMAL",
-        harga: "",
-        jumlah: "10 m3",
-        total: "15.000",
-      });
-      baris.push({ label: "BEBAN", harga: "", jumlah: "", total: "5.000" });
+      baris.push(`Min 10m³        = 15.000`);
+      baris.push(`Beban           =  5.000`);
 
-      // Format setiap baris (agar sejajar di 6cm paper)
-      for (const b of baris) {
-        text += `${b.label.padEnd(7, " ")} ${String(b.harga || "").padEnd(
-          6,
-          " "
-        )} X ${String(b.jumlah || "").padEnd(6, " ")} = ${b.total}\n`;
-      }
-
+      text += baris.join("\n") + "\n";
       text += garis + "\n";
-      text += `TOTAL TAGIHAN : Rp ${Number(
-        tagihan.jumlahTagihan
-      ).toLocaleString("id-ID")}\n`;
-      text += garis + "\n\n";
-      text +=
-        "Gunakan air dengan bijak.\nPembayaran paling lambat tgl 28.\n3 bulan menunggak = pemutusan.\nBayar di Toko Zaenal.\n\n";
-      text += `Dicetak pada ${tanggalCetak}\n\n\n`;
+      text += `Total : Rp ${Number(tagihan.jumlahTagihan).toLocaleString(
+        "id-ID"
+      )}\n`;
+      text += garis + "\n";
+      text += `Gunakan air bijak.\nBayar max tgl 28.\n3 bln nunggak=putus.\nBayar di Toko Zaenal.\n\n`;
+      text += `Dicetak: ${tanggalCetak}\n\n\n`;
 
-      // Kirim ke printer
+      // =============================
+      // Kirim ke printer (split per 200 byte)
+      // =============================
       const encoder = new TextEncoder();
       const bytes = encoder.encode(text);
       const chunkSize = 200;
@@ -442,8 +572,114 @@ const PrintPreviewScreen = () => {
 
   const tanggalCetak = moment().format("DD MMMM YYYY HH.mm");
 
+  const handleShowPreview = () => {
+    const tanggalCetak = moment().format("DD MMMM YYYY HH.mm");
+    const lebarStruk = 32; // lebar karakter, biar rata semua
+    const garis = "=".repeat(lebarStruk);
+
+    // Fungsi bantu untuk membuat teks rata tengah
+    const center = (text) => {
+      const pad = Math.floor((lebarStruk - text.length) / 2);
+      return " ".repeat(pad > 0 ? pad : 0) + text;
+    };
+
+    let text = "";
+    text += center("KPSPAMS BATHORO SURYO MAKMUR") + "\n";
+    text += center("Dusun Sukoyuwono Desa Palaan") + "\n";
+    text += center("Kec. Ngajum Kab. Malang") + "\n";
+    text += garis + "\n";
+    text += `Nama   : ${pelanggan.nama || "-"}\n`;
+    text += `Alamat : ${pelanggan.alamat || "-"}\n`;
+    text += `Bulan  : ${tagihan.bulan || "-"}\n`;
+    text += `Tahun  : ${tagihan.tahun || "-"}\n`;
+    text += garis + "\n";
+
+    text += `STAN    ${tagihan.stanAwal}   > ${tagihan.stanAkhir} = ${tagihan.jumlahPakai} m³\n`;
+
+    // Daftar baris tarif
+    const baris = [];
+
+    if (tagihan.jumlahPakai > 30)
+      baris.push(
+        `>30       3.000 x ${tagihan.lebih.toString().padEnd(2)} = ${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}`
+      );
+    else baris.push(`>30     3.000  x    0`);
+
+    if (tagihan.jumlahPakai > 20 && tagihan.jumlahPakai < 31)
+      baris.push(
+        `21>30    2.000 x ${tagihan.lebih.toString().padEnd(2)} = ${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}`
+      );
+    else baris.push(`21>30    2.000 x    0`);
+
+    if (tagihan.jumlahPakai > 10 && tagihan.jumlahPakai < 21)
+      baris.push(
+        `11>20    1.500 x${tagihan.lebih.toString().padEnd(2)} = ${Number(
+          tagihan.hargaLebih
+        ).toLocaleString("id-ID")}`
+      );
+    else baris.push(`11>20    1.500 x    0`);
+
+    baris.push(`Min 10m³        = 15.000`);
+    baris.push(`Beban           =  5.000`);
+
+    text += baris.join("\n") + "\n";
+    text += garis + "\n";
+    text += `Total : Rp ${Number(tagihan.jumlahTagihan).toLocaleString(
+      "id-ID"
+    )}\n`;
+    text += garis + "\n";
+    text += `Gunakan air bijak.\nBayar max tgl 28.\n3 bln nunggak=putus.\nBayar di Toko Zaenal.\n\n`;
+    text += `Dicetak: ${tanggalCetak}\n`;
+
+    setPreviewText(text);
+    setShowPreview(true);
+  };
+
   return (
     <div>
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-3 w-[200px]">
+            <h2 className="text-center font-bold mb-2 text-xs">
+              Preview Struk Tagihan
+            </h2>
+            <hr />
+            <pre
+              className="mt-2"
+              style={{
+                fontFamily: "monospace",
+                fontSize: "9px",
+                lineHeight: "1.2",
+                whiteSpace: "pre",
+                textAlign: "left",
+              }}
+            >
+              {previewText}
+            </pre>
+
+            <hr className="mt-2" />
+            <div className="flex justify-between mt-3 text-xs">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer"
+              >
+                Tutup
+              </button>
+              <button
+                onClick={handlePrint}
+                className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
+              >
+                Cetak
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div
         ref={previewRef}
         className="bg-white p-2 w-[400px] h-[600px] mx-auto my-4 shadow-md rounded-2xl"
@@ -566,24 +802,31 @@ const PrintPreviewScreen = () => {
       <div className="mb-4 space-x-2 w-[380px] mx-auto my-4 p-4 rounded-2xl shadow-md border text-[15px] font-[sans-serif] bg-white text-center flex">
         <button
           onClick={handleDownloadJPG}
-          className="flex items-center justify-center gap-2 w-100 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          className="flex items-center justify-center gap-2 w-100 bg-red-900 hover:bg-red-700 text-white px-4 py-2 rounded cursor-pointer"
         >
           <FaFileImage />
           JPG
         </button>
-        <button
+        {/* <button
           onClick={handleDownloadPDF}
           className="bg-red-700 flex items-center justify-center w-100 gap-2 hover:bg-red-600 text-white px-4 py-2 rounded"
         >
           <FaFilePdf />
           PDF
-        </button>
+        </button> */}
         <button
           onClick={handlePrint}
-          className="bg-gray-700 flex items-center justify-center w-100 gap-2 hover:bg-gray-600 text-white px-4 py-2 rounded"
+          className="bg-gray-700 flex items-center justify-center w-100 gap-2 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer"
         >
           <FaPrint />
-          Print
+          Cetak
+        </button>
+        <button
+          onClick={handleShowPreview}
+          className="bg-blue-700 flex items-center justify-center w-100 gap-2 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
+        >
+          Preview
+          <FaEye />
         </button>
       </div>
     </div>
