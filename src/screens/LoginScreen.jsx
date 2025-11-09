@@ -84,7 +84,7 @@ export default function LoginScreen() {
             whileHover={{ scale: 1.05, rotate: 3 }}
           />
           <h1 className="text-3xl font-bold tracking-wide text-white drop-shadow-md">
-            Login Admin PDAM
+            Login Admin BSM
           </h1>
           <p className="text-sm text-blue-100 mt-1">
             Sistem Tagihan Air – Bathoro Suryo Makmur
